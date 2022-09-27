@@ -1,10 +1,14 @@
 package kr.megaptera.makaobank.models;
 
 import kr.megaptera.makaobank.dtos.AccountDto;
+import kr.megaptera.makaobank.exceptions.IncorrectAmount;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Entity
 public class Account {
@@ -16,17 +20,46 @@ public class Account {
 
   private String accountNumber;
 
-  private long amount;
+  private Long amount;
+
+  @CreationTimestamp
+  private LocalDateTime createdAt;
+
+  @UpdateTimestamp
+  private LocalDateTime updatedAt;
 
   public Account() {
 
   }
 
-  public Account(Long id, String name, String accountNumber, long amount) {
+  public Account(String name, String accountNumber) {
+    this.name = name;
+    this.accountNumber = accountNumber;
+    this.amount = 0L;
+  }
+
+  public Account(Long id, String name, String accountNumber, Long amount) {
     this.id = id;
     this.name = name;
     this.accountNumber = accountNumber;
     this.amount = amount;
+  }
+
+  public void transferTo(Account other, Long amount) {
+    if (amount <= 0 || amount > this.amount) {
+      throw new IncorrectAmount(amount);
+    }
+
+    this.amount -= amount;
+    other.amount += amount;
+  }
+
+  public String accountNumber() {
+    return accountNumber;
+  }
+
+  public Long amount() {
+    return amount;
   }
 
   public AccountDto toDto() {
