@@ -5,6 +5,7 @@ import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.repositories.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -29,10 +30,12 @@ class TransactionServiceTest {
 
     Transaction transaction = mock(Transaction.class);
 
+    Sort sort = Sort.by("createdAt").descending();
+
     given(
         transactionRepository
-            .findAllBySenderOrReceiverOrderByCreatedAtDesc(
-                accountNumber, accountNumber))
+            .findAllBySenderOrReceiver(
+                accountNumber, accountNumber, sort))
         .willReturn(List.of(
             transaction
         ));
