@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/transactions")
@@ -42,11 +42,14 @@ public class TransactionsController {
 
   @GetMapping
   public TransactionsDto list() {
-    List<Transaction> transactions = transactionService.list();
+    // TODO: 보내는 사람을 인증 후 제대로 가져오도록 해야 함
+    AccountNumber accountNumber = new AccountNumber("352");
+    List<TransactionDto> transactionDtos =
+        transactionService.list(accountNumber)
+            .stream()
+            .map(transaction -> transaction.toDto(accountNumber))
+            .collect(Collectors.toList());
 
-    // TODO: transaction >> transactionDto로 변환하는 과정을 반복해 (stream-map으로)
-    //  List를 생성
-    List<TransactionDto> transactionDtos = new ArrayList<>();
     return new TransactionsDto(transactionDtos);
   }
 

@@ -1,5 +1,6 @@
 package kr.megaptera.makaobank.services;
 
+import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.repositories.TransactionRepository;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,9 @@ public class TransactionService {
     this.transactionRepository = transactionRepository;
   }
 
-  public List<Transaction> list() {
-    List<Transaction> transactions = transactionRepository.findAll();
-
-    return transactions;
+  public List<Transaction> list(AccountNumber accountNumber) {
+    return transactionRepository
+        .findAllBySenderOrReceiverOrderByCreatedAtDesc(
+            accountNumber, accountNumber);
   }
 }

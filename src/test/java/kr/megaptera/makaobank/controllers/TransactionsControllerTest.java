@@ -43,7 +43,8 @@ class TransactionsControllerTest {
   void list() throws Exception {
     Transaction transaction = mock(Transaction.class);
 
-    given(transactionService.list())
+    AccountNumber accountNumber = new AccountNumber("352");
+    given(transactionService.list(accountNumber))
         .willReturn(List.of(
             transaction
         ));
@@ -54,7 +55,7 @@ class TransactionsControllerTest {
             containsString("\"transactions\":[")
         ));
 
-    verify(transactionService).list();
+    verify(transactionService).list(accountNumber);
   }
 
   // Tests of Transfer
