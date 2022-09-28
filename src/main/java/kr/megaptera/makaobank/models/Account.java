@@ -2,6 +2,7 @@ package kr.megaptera.makaobank.models;
 
 import kr.megaptera.makaobank.dtos.AccountDto;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
+import kr.megaptera.makaobank.exceptions.InsufficientAmount;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -46,8 +47,12 @@ public class Account {
   }
 
   public void transferTo(Account other, Long amount) {
-    if (amount <= 0 || amount > this.amount) {
+    if (amount <= 0) {
       throw new IncorrectAmount(amount);
+    }
+
+    if (amount > this.amount) {
+      throw new InsufficientAmount(amount);
     }
 
     this.amount -= amount;

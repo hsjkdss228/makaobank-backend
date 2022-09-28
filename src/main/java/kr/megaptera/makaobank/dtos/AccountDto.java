@@ -7,10 +7,6 @@ public class AccountDto {
 
   public long amount;
 
-  public AccountDto() {
-
-  }
-
   public AccountDto(String name, String accountNumber, long amount) {
     this.name = name;
     this.accountNumber = accountNumber;

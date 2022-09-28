@@ -2,6 +2,7 @@ package kr.megaptera.makaobank.controllers;
 
 import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
+import kr.megaptera.makaobank.exceptions.InsufficientAmount;
 import kr.megaptera.makaobank.services.TransferService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ class TransactionsControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
-                "\"from\":\"352\"," +
                 "\"to\":\"179\"," +
                 "\"amount\":\"3000\"" +
                 "}"))
@@ -53,7 +53,6 @@ class TransactionsControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
-                "\"from\":\"352\"," +
                 "\"to\":\"" + incorrectAccountNumber + "\"," +
                 "\"amount\":\"3000\"" +
                 "}"))
@@ -74,7 +73,6 @@ class TransactionsControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
-                "\"from\":\"352\"," +
                 "\"to\":\"179\"," +
                 "\"amount\":\"" + negativeAmount + "\"" +
                 "}"))
@@ -89,19 +87,18 @@ class TransactionsControllerTest {
     Long tooLargeAmount = 45_600_000_000L;
 
     given(transferService.transfer(any(), any(), any()))
-        .willThrow(new IncorrectAmount(tooLargeAmount));
+        .willThrow(new InsufficientAmount(tooLargeAmount));
 
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
-                "\"from\":\"352\"," +
                 "\"to\":\"179\"," +
                 "\"amount\":\"" + tooLargeAmount + "\"" +
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.content().string(
-            containsString("\"code\":1002")
+            containsString("\"code\":1003")
         ));
   }
 }

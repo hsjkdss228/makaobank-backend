@@ -1,6 +1,7 @@
 package kr.megaptera.makaobank.models;
 
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
+import kr.megaptera.makaobank.exceptions.InsufficientAmount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +44,7 @@ class AccountTest {
   void transferWithTooLargeAmount() {
     Long tooLargeTransferAmount = 500_000_000L;
 
-    assertThrows(IncorrectAmount.class, () -> {
+    assertThrows(InsufficientAmount.class, () -> {
       account1.transferTo(account2, tooLargeTransferAmount);
     });
   }

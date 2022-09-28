@@ -3,10 +3,12 @@ package kr.megaptera.makaobank.controllers;
 import kr.megaptera.makaobank.dtos.AccountNotFoundErrorDto;
 import kr.megaptera.makaobank.dtos.ErrorDto;
 import kr.megaptera.makaobank.dtos.IncorrectAmountErrorDto;
+import kr.megaptera.makaobank.dtos.InsufficientAmountErrorDto;
 import kr.megaptera.makaobank.dtos.TransferDto;
 import kr.megaptera.makaobank.dtos.TransferResultDto;
 import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
+import kr.megaptera.makaobank.exceptions.InsufficientAmount;
 import kr.megaptera.makaobank.services.TransferService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -45,14 +47,18 @@ public class TransactionsController {
   @ExceptionHandler(AccountNotFound.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorDto accountNotFound() {
-    // TODO: Error DTO 사용할 것
     return new AccountNotFoundErrorDto();
   }
 
   @ExceptionHandler(IncorrectAmount.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorDto incorrectAmount() {
-    // TODO: Error DTO 사용할 것
     return new IncorrectAmountErrorDto();
+  }
+
+  @ExceptionHandler(InsufficientAmount.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorDto insufficientAmount() {
+    return new InsufficientAmountErrorDto();
   }
 }
