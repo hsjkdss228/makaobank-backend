@@ -17,8 +17,8 @@ class AccountTest {
 
   @BeforeEach
   void setUp() {
-    account1 = new Account(1L, "FROM", "352", SENDER_AMOUNT);
-    account2 = new Account(2L, "To", "179", RECEIVER_AMOUNT);
+    account1 = new Account(1L, "FROM", new AccountNumber("352"), SENDER_AMOUNT);
+    account2 = new Account(2L, "To", new AccountNumber("179"), RECEIVER_AMOUNT);
   }
 
   @Test

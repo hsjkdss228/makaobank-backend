@@ -11,6 +11,7 @@ import kr.megaptera.makaobank.dtos.TransferResultDto;
 import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
 import kr.megaptera.makaobank.exceptions.InsufficientAmount;
+import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.services.TransactionService;
 import kr.megaptera.makaobank.services.TransferService;
@@ -55,12 +56,14 @@ public class TransactionsController {
       @Validated @RequestBody TransferDto transferDto
   ) {
     // TODO: 보내는 사람을 인증 후 제대로 가져오도록 해야 함
-    String accountNumber = "352";
+    AccountNumber senderAccountNumber = new AccountNumber("352");
+    AccountNumber receiverAccountNumber = new AccountNumber(transferDto.getTo());
 
     Long amount = transferService.transfer(
-        accountNumber,
-        transferDto.getTo(),
-        transferDto.getAmount());
+        senderAccountNumber,
+        receiverAccountNumber,
+        transferDto.getAmount(),
+        transferDto.getName());
 
     return new TransferResultDto(amount);
   }

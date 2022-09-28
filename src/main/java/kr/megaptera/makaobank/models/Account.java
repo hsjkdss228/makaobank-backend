@@ -6,6 +6,7 @@ import kr.megaptera.makaobank.exceptions.InsufficientAmount;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -19,7 +20,8 @@ public class Account {
 
   private String name;
 
-  private String accountNumber;
+  @Embedded
+  private AccountNumber accountNumber;
 
   private Long amount;
 
@@ -33,13 +35,13 @@ public class Account {
 
   }
 
-  public Account(String name, String accountNumber) {
+  public Account(String name, AccountNumber accountNumber) {
     this.name = name;
     this.accountNumber = accountNumber;
     this.amount = 0L;
   }
 
-  public Account(Long id, String name, String accountNumber, Long amount) {
+  public Account(Long id, String name, AccountNumber accountNumber, Long amount) {
     this.id = id;
     this.name = name;
     this.accountNumber = accountNumber;
@@ -59,7 +61,7 @@ public class Account {
     other.amount += amount;
   }
 
-  public String accountNumber() {
+  public AccountNumber accountNumber() {
     return accountNumber;
   }
 
@@ -68,10 +70,11 @@ public class Account {
   }
 
   public AccountDto toDto() {
-    return new AccountDto(name, accountNumber, amount);
+    return new AccountDto(name, accountNumber.value(), amount);
   }
 
   public static Account fake(String accountNumber) {
-    return new Account(1L, "황인우", accountNumber, 1_000_000L);
+    return new Account(
+        1L, "황인우", new AccountNumber(accountNumber), 1_000_000L);
   }
 }

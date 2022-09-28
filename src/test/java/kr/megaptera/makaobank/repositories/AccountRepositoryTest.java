@@ -1,6 +1,7 @@
 package kr.megaptera.makaobank.repositories;
 
 import kr.megaptera.makaobank.models.Account;
+import kr.megaptera.makaobank.models.AccountNumber;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,8 +16,8 @@ class AccountRepositoryTest {
   private AccountRepository accountRepository;
 
   @Test
-  void creation() {
-    Account account = new Account("박지성", "110");
+  void save() {
+    Account account = new Account("박지성", new AccountNumber("110"));
 
     accountRepository.save(account);
   }

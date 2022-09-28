@@ -3,6 +3,7 @@ package kr.megaptera.makaobank.controllers;
 import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
 import kr.megaptera.makaobank.exceptions.InsufficientAmount;
+import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.services.TransactionService;
 import kr.megaptera.makaobank.services.TransferService;
@@ -59,31 +60,38 @@ class TransactionsControllerTest {
   // Tests of Transfer
   @Test
   void transfer() throws Exception {
+    AccountNumber receiverAccountNumber = new AccountNumber("179");
+    String name = "김인우";
+
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
-                "\"to\":\"179\"," +
-                "\"amount\":\"3000\"" +
+                "\"to\":\"" + receiverAccountNumber.value() + "\"," +
+                "\"amount\":\"3000\"," +
+                "\"name\":\"" + name + "\"" +
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isCreated());
 
-    verify(transferService).transfer("352", "179", 3_000L);
+    verify(transferService).transfer(
+        new AccountNumber("352"), receiverAccountNumber, 3_000L, name);
   }
 
   @Test
   void transferWithIncorrectAccountNumber() throws Exception {
-    String incorrectAccountNumber = "666666";
+    AccountNumber incorrectAccountNumber = new AccountNumber("666666");
+    String name = "김인우";
 
-    given(transferService.transfer(any(), any(), any()))
+    given(transferService.transfer(any(), any(), any(), any()))
         .willThrow(new AccountNotFound(incorrectAccountNumber));
 
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
-                "\"to\":\"" + incorrectAccountNumber + "\"," +
-                "\"amount\":\"3000\"" +
+                "\"to\":\"" + incorrectAccountNumber.value() + "\"," +
+                "\"amount\":\"3000\"," +
+                "\"name\":\"" + name + "\"" +
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.content().string(
@@ -94,8 +102,9 @@ class TransactionsControllerTest {
   @Test
   void transferWithNegativeAmount() throws Exception {
     Long negativeAmount = -10L;
+    String name = "김인우";
 
-    given(transferService.transfer(any(), any(), any()))
+    given(transferService.transfer(any(), any(), any(), any()))
         .willThrow(new IncorrectAmount(negativeAmount));
 
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
@@ -103,7 +112,8 @@ class TransactionsControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
                 "\"to\":\"179\"," +
-                "\"amount\":\"" + negativeAmount + "\"" +
+                "\"amount\":\"" + negativeAmount + "\"," +
+                "\"name\":\"" + name + "\"" +
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.content().string(
@@ -114,8 +124,9 @@ class TransactionsControllerTest {
   @Test
   void transferWithTooLargeAmount() throws Exception {
     Long tooLargeAmount = 45_600_000_000L;
+    String name = "김인우";
 
-    given(transferService.transfer(any(), any(), any()))
+    given(transferService.transfer(any(), any(), any(), any()))
         .willThrow(new InsufficientAmount(tooLargeAmount));
 
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
@@ -123,7 +134,8 @@ class TransactionsControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
                 "\"to\":\"179\"," +
-                "\"amount\":\"" + tooLargeAmount + "\"" +
+                "\"amount\":\"" + tooLargeAmount + "\"," +
+                "\"name\":\"" + name + "\"" +
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.content().string(

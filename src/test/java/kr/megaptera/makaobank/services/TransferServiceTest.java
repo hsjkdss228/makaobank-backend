@@ -3,7 +3,9 @@ package kr.megaptera.makaobank.services;
 import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
 import kr.megaptera.makaobank.models.Account;
+import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.repositories.AccountRepository;
+import kr.megaptera.makaobank.repositories.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,12 +22,15 @@ import static org.mockito.Mockito.verify;
 
 class TransferServiceTest {
   private AccountRepository accountRepository;
+  private TransactionRepository transactionRepository;
   private TransferService transferService;
 
   @BeforeEach
   void setUp() {
     accountRepository = mock(AccountRepository.class);
-    transferService = new TransferService(accountRepository);
+    transactionRepository = mock(TransactionRepository.class);
+    transferService
+        = new TransferService(accountRepository, transactionRepository);
   }
 
   @Test
@@ -34,52 +39,67 @@ class TransferServiceTest {
     Long receiverAmount = 10L;
     Long transferAmount = 3_000L;
 
-    Account account1 = spy(new Account(1L, "FROM", "352", senderAmount));
-    Account account2 = new Account(2L, "TO", "179", receiverAmount);
+    AccountNumber accountNumber1 = new AccountNumber("352");
+    AccountNumber accountNumber2 = new AccountNumber("179");
+
+    Account account1 = spy(new Account(1L, "황인우", accountNumber1, senderAmount));
+    Account account2 = new Account(2L, "치코리타", accountNumber2, receiverAmount);
 
     given(accountRepository.findByAccountNumber(account1.accountNumber()))
         .willReturn(Optional.of(account1));
     given(accountRepository.findByAccountNumber(account2.accountNumber()))
         .willReturn(Optional.of(account2));
 
-    transferService.transfer("352", "179", transferAmount);
+    String name = "김인우";
+
+    transferService.transfer(accountNumber1, accountNumber2, transferAmount, name);
 
     verify(account1).transferTo(account2, transferAmount);
+
+    verify(transactionRepository).save(any());
   }
 
   @Test
   void transferWithIncorrectFromAccountNumber() {
-    String wrongAccountNumber = "6666666";
+    AccountNumber wrongAccountNumber = new AccountNumber("6666666");
 
     Long receiverAmount = 10L;
     Long transferAmount = 3_000L;
 
-    Account account = new Account(2L, "TO", "179", receiverAmount);
+    AccountNumber accountNumber = new AccountNumber("179");
+
+    Account account = new Account(2L, "치코리타", accountNumber, receiverAmount);
 
     given(accountRepository.findByAccountNumber(account.accountNumber()))
         .willReturn(Optional.of(account));
 
+    String name = "???";
+
     assertThrows(AccountNotFound.class, () -> {
       transferService.transfer(
-          wrongAccountNumber, account.accountNumber(), transferAmount);
+          wrongAccountNumber, account.accountNumber(), transferAmount, name);
     });
   }
 
   @Test
   void transferWithIncorrectToAccountNumber() {
-    String wrongAccountNumber = "6666666";
+    AccountNumber wrongAccountNumber = new AccountNumber("6666666");
 
     Long senderAmount = 1_000_000L;
     Long transferAmount = 3_000L;
 
-    Account account = new Account(1L, "FROM", "352", senderAmount);
+    AccountNumber accountNumber = new AccountNumber("352");
+
+    Account account = new Account(1L, "황인우", accountNumber, senderAmount);
 
     given(accountRepository.findByAccountNumber(account.accountNumber()))
         .willReturn(Optional.of(account));
 
+    String name = "김인우";
+
     assertThrows(AccountNotFound.class, () -> {
       transferService.transfer(
-          account.accountNumber(), wrongAccountNumber, transferAmount);
+          account.accountNumber(), wrongAccountNumber, transferAmount, name);
     });
   }
 }
