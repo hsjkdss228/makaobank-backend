@@ -12,19 +12,19 @@ import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
 import kr.megaptera.makaobank.exceptions.InsufficientAmount;
 import kr.megaptera.makaobank.models.AccountNumber;
-import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.services.TransactionService;
 import kr.megaptera.makaobank.services.TransferService;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,11 +41,14 @@ public class TransactionsController {
   }
 
   @GetMapping
-  public TransactionsDto list() {
+  public TransactionsDto list(
+      @RequestParam(required = false, defaultValue = "1") Integer page
+      ) {
     // TODO: 보내는 사람을 인증 후 제대로 가져오도록 해야 함
     AccountNumber accountNumber = new AccountNumber("352");
+
     List<TransactionDto> transactionDtos =
-        transactionService.list(accountNumber)
+        transactionService.list(accountNumber, page)
             .stream()
             .map(transaction -> transaction.toDto(accountNumber))
             .collect(Collectors.toList());
@@ -56,7 +59,7 @@ public class TransactionsController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public TransferResultDto transfer(
-      @Validated @RequestBody TransferDto transferDto
+      @Valid @RequestBody TransferDto transferDto
   ) {
     // TODO: 보내는 사람을 인증 후 제대로 가져오도록 해야 함
     AccountNumber senderAccountNumber = new AccountNumber("352");

@@ -5,12 +5,13 @@ import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.repositories.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -30,17 +31,19 @@ class TransactionServiceTest {
 
     Transaction transaction = mock(Transaction.class);
 
-    Sort sort = Sort.by("createdAt").descending();
+    Sort sort = Sort.by("id").descending();
+    Pageable pageable = PageRequest.of(0, 100, sort);
+    int page = 1;
 
     given(
         transactionRepository
             .findAllBySenderOrReceiver(
-                accountNumber, accountNumber, sort))
+                accountNumber, accountNumber, pageable))
         .willReturn(List.of(
             transaction
         ));
 
-    List<Transaction> transactions = transactionService.list(accountNumber);
+    List<Transaction> transactions = transactionService.list(accountNumber, page);
 
     assertThat(transactions).hasSize(1);
   }

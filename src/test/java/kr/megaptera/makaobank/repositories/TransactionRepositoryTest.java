@@ -5,6 +5,8 @@ import kr.megaptera.makaobank.models.Transaction;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -62,9 +64,10 @@ class TransactionRepositoryTest {
     );
 
     Sort sort = Sort.by("id").descending();
+    Pageable pageable = PageRequest.of(0, 100, sort);
     List<Transaction> transactions
         = transactionRepository.findAllBySenderOrReceiver(
-        senderAccountNumber, senderAccountNumber, sort);
+        senderAccountNumber, senderAccountNumber, pageable);
 
     assertThat(transactions).hasSize(1);
     assertThat(transactions.get(0).activity(senderAccountNumber))

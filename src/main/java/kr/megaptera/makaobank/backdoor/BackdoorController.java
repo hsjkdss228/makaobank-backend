@@ -25,6 +25,7 @@ public class BackdoorController {
 
     // 1. 기존 데이터 삭제
     jdbcTemplate.execute("DELETE FROM ACCOUNT");
+    jdbcTemplate.execute("DELETE FROM TRANSACTION");
 
     // 2. 내가 원하는 데이터로 초기화
     jdbcTemplate.update("" +
