@@ -69,6 +69,10 @@ public class Account {
     return amount;
   }
 
+  public String name() {
+    return name;
+  }
+
   public AccountDto toDto() {
     return new AccountDto(name, accountNumber.value(), amount);
   }
