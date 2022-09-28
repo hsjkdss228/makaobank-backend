@@ -1,6 +1,7 @@
 package kr.megaptera.makaobank.backdoor;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,9 +15,12 @@ import java.time.LocalDateTime;
 @Transactional
 public class BackdoorController {
   private final JdbcTemplate jdbcTemplate;
+  private final PasswordEncoder passwordEncoder;
 
-  public BackdoorController(JdbcTemplate jdbcTemplate) {
+  public BackdoorController(JdbcTemplate jdbcTemplate,
+                            PasswordEncoder passwordEncoder) {
     this.jdbcTemplate = jdbcTemplate;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @GetMapping("/setup-database")
@@ -29,18 +33,22 @@ public class BackdoorController {
 
     // 2. 내가 원하는 데이터로 초기화
     jdbcTemplate.update("" +
-                "INSERT INTO ACCOUNT(" +
-                "   ID, NAME, ACCOUNT_NUMBER, AMOUNT, CREATED_AT, UPDATED_AT" +
-                ") " +
-                "VALUES(1, '김인우', '352', 456000000, ?, ?)",
-        now, now
+                  "INSERT INTO ACCOUNT(" +
+                  "   ID, ACCOUNT_NUMBER, ENCODED_PASSWORD, " +
+                  "   NAME, AMOUNT, CREATED_AT, UPDATED_AT" +
+                  ") " +
+                  "VALUES(1, ?, ?, ?, ?, ?, ?)",
+        "352", passwordEncoder.encode("password"),
+        "김인우", 456_000_000, now, now
     );
     jdbcTemplate.update("" +
-                "INSERT INTO ACCOUNT(" +
-                "   ID, NAME, ACCOUNT_NUMBER, AMOUNT, CREATED_AT, UPDATED_AT" +
-                ") " +
-                "VALUES(2, '치코리타', '179', 10, ?, ?)",
-        now, now
+                  "INSERT INTO ACCOUNT(" +
+                  "   ID, ACCOUNT_NUMBER, ENCODED_PASSWORD, " +
+                  "   NAME, AMOUNT, CREATED_AT, UPDATED_AT" +
+                  ") " +
+                  "VALUES(2, ?, ?, ?, ?, ?, ?)",
+        "179", passwordEncoder.encode("password"),
+        "치코리타", 10, now, now
     );
 
     return "OK";

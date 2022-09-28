@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -26,5 +28,10 @@ public class MakaobankApplication {
         registry.addMapping("/**").allowedOrigins("*");
       }
     };
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new Argon2PasswordEncoder();
   }
 }

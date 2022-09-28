@@ -5,6 +5,7 @@ import kr.megaptera.makaobank.exceptions.IncorrectAmount;
 import kr.megaptera.makaobank.exceptions.InsufficientAmount;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -22,6 +23,8 @@ public class Account {
 
   @Embedded
   private AccountNumber accountNumber;
+
+  private String encodedPassword;
 
   private Long amount;
 
@@ -59,6 +62,16 @@ public class Account {
 
     this.amount -= amount;
     other.amount += amount;
+  }
+
+  public boolean authenticate(String password,
+                              PasswordEncoder passwordEncoder) {
+    return passwordEncoder.matches(password, encodedPassword);
+  }
+
+  public void changePassword(String password,
+                             PasswordEncoder passwordEncoder) {
+    encodedPassword = passwordEncoder.encode(password);
   }
 
   public AccountNumber accountNumber() {

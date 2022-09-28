@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -31,14 +33,12 @@ class TransactionServiceTest {
 
     Transaction transaction = mock(Transaction.class);
 
-    Sort sort = Sort.by("id").descending();
-    Pageable pageable = PageRequest.of(0, 100, sort);
     int page = 1;
 
     given(
         transactionRepository
             .findAllBySenderOrReceiver(
-                accountNumber, accountNumber, pageable))
+                eq(accountNumber), eq(accountNumber), any()))
         .willReturn(List.of(
             transaction
         ));

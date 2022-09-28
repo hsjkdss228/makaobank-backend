@@ -2,6 +2,7 @@ package kr.megaptera.makaobank.controllers;
 
 import kr.megaptera.makaobank.exceptions.LoginFailed;
 import kr.megaptera.makaobank.models.Account;
+import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.services.LoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,13 +27,14 @@ class SessionControllerTest {
 
   @BeforeEach
   void setUp() {
-    Account account = Account.fake("1234");
+    AccountNumber accountNumber = new AccountNumber("352");
+    AccountNumber wrongAccountNumber = new AccountNumber("wrongAccountNumber");
 
-    given(loginService.login("352", "password"))
-        .willReturn(account);
-    given(loginService.login("wrongAccountNumber", "password"))
+    given(loginService.login(accountNumber, "password"))
+        .willReturn(Account.fake(accountNumber.value()));
+    given(loginService.login(wrongAccountNumber, "password"))
         .willThrow(LoginFailed.class);
-    given(loginService.login("352", "wrongPassword"))
+    given(loginService.login(accountNumber, "wrongPassword"))
         .willThrow(LoginFailed.class);
   }
 
@@ -46,7 +48,7 @@ class SessionControllerTest {
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isCreated())
         .andExpect(MockMvcResultMatchers.content().string(
-            containsString("{\"amount\":")
+            containsString("\"amount\":")
         ));
   }
 

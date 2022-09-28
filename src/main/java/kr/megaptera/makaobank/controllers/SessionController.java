@@ -4,6 +4,7 @@ import kr.megaptera.makaobank.dtos.LoginRequestDto;
 import kr.megaptera.makaobank.dtos.LoginResponseDto;
 import kr.megaptera.makaobank.exceptions.LoginFailed;
 import kr.megaptera.makaobank.models.Account;
+import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.services.LoginService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,12 +28,18 @@ public class SessionController {
   public LoginResponseDto login(
       @RequestBody LoginRequestDto loginRequestDto
   ) {
+    AccountNumber accountNumber
+        = new AccountNumber(loginRequestDto.getAccountNumber());
+    String password = loginRequestDto.getPassword();
+
     Account account = loginService.login(
-        loginRequestDto.getAccountNumber(), loginRequestDto.getPassword());
+        accountNumber,
+        password);
 
     return new LoginResponseDto(
         account.accountNumber().value(),
-        account.name(), account.amount()
+        account.name(),
+        account.amount()
     );
   }
 
