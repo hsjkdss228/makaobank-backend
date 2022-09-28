@@ -3,20 +3,26 @@ package kr.megaptera.makaobank.controllers;
 import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
 import kr.megaptera.makaobank.exceptions.InsufficientAmount;
+import kr.megaptera.makaobank.models.Transaction;
+import kr.megaptera.makaobank.services.TransactionService;
 import kr.megaptera.makaobank.services.TransferService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.List;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @WebMvcTest(TransactionsController.class)
@@ -28,6 +34,29 @@ class TransactionsControllerTest {
   @MockBean
   private TransferService transferService;
 
+  @MockBean
+  private TransactionService transactionService;
+
+  // Tests of Transactions
+  @Test
+  void list() throws Exception {
+    Transaction transaction = mock(Transaction.class);
+
+    given(transactionService.list())
+        .willReturn(List.of(
+            transaction
+        ));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/transactions"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().string(
+            containsString("\"transactions\":[")
+        ));
+
+    verify(transactionService).list();
+  }
+
+  // Tests of Transfer
   @Test
   void transfer() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
