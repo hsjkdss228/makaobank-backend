@@ -6,6 +6,7 @@ import kr.megaptera.makaobank.exceptions.LoginFailed;
 import kr.megaptera.makaobank.models.Account;
 import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.services.LoginService;
+import kr.megaptera.makaobank.utils.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/session")
 public class SessionController {
   private final LoginService loginService;
+  private final JwtUtil jwtUtil;
 
-  public SessionController(LoginService loginService) {
+  public SessionController(LoginService loginService, JwtUtil jwtUtil) {
     this.loginService = loginService;
+    this.jwtUtil = jwtUtil;
   }
 
   @PostMapping
@@ -36,8 +39,10 @@ public class SessionController {
         accountNumber,
         password);
 
+    String accessToken = jwtUtil.encode(accountNumber);
+
     return new LoginResponseDto(
-        account.accountNumber().value(),
+        accessToken,
         account.name(),
         account.amount()
     );
