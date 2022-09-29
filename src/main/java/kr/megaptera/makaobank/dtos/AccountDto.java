@@ -5,9 +5,9 @@ public class AccountDto {
 
   public String accountNumber;
 
-  public long amount;
+  public Long amount;
 
-  public AccountDto(String name, String accountNumber, long amount) {
+  public AccountDto(String name, String accountNumber, Long amount) {
     this.name = name;
     this.accountNumber = accountNumber;
     this.amount = amount;

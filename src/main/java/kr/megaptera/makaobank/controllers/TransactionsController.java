@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,11 +43,9 @@ public class TransactionsController {
 
   @GetMapping
   public TransactionsDto list(
+      @RequestAttribute("accountNumber") AccountNumber accountNumber,
       @RequestParam(required = false, defaultValue = "1") Integer page
       ) {
-    // TODO: 보내는 사람을 인증 후 제대로 가져오도록 해야 함
-    AccountNumber accountNumber = new AccountNumber("352");
-
     List<TransactionDto> transactionDtos =
         transactionService.list(accountNumber, page)
             .stream()
@@ -59,10 +58,9 @@ public class TransactionsController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public TransferResultDto transfer(
+      @RequestAttribute("accountNumber") AccountNumber senderAccountNumber,
       @Valid @RequestBody TransferDto transferDto
   ) {
-    // TODO: 보내는 사람을 인증 후 제대로 가져오도록 해야 함
-    AccountNumber senderAccountNumber = new AccountNumber("352");
     AccountNumber receiverAccountNumber = new AccountNumber(transferDto.getTo());
 
     Long amount = transferService.transfer(

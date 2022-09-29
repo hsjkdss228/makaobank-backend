@@ -1,5 +1,7 @@
 package kr.megaptera.makaobank.controllers;
 
+import kr.megaptera.makaobank.dtos.ErrorDto;
+import kr.megaptera.makaobank.dtos.LoginFailedErrorDto;
 import kr.megaptera.makaobank.dtos.LoginRequestDto;
 import kr.megaptera.makaobank.dtos.LoginResponseDto;
 import kr.megaptera.makaobank.exceptions.LoginFailed;
@@ -50,7 +52,7 @@ public class SessionController {
 
   @ExceptionHandler(LoginFailed.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public String loginFailed() {
-    return "Login Failed";
+  public ErrorDto loginFailed() {
+    return new LoginFailedErrorDto();
   }
 }

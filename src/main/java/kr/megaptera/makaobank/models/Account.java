@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Account {
@@ -42,6 +44,12 @@ public class Account {
     this.name = name;
     this.accountNumber = accountNumber;
     this.amount = 0L;
+  }
+
+  public Account(Long id, String name, AccountNumber accountNumber) {
+    this.id = id;
+    this.name = name;
+    this.accountNumber = accountNumber;
   }
 
   public Account(Long id, String name, AccountNumber accountNumber, Long amount) {

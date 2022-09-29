@@ -7,6 +7,7 @@ import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.services.TransactionService;
 import kr.megaptera.makaobank.services.TransferService;
+import kr.megaptera.makaobank.utils.JwtUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,6 +39,9 @@ class TransactionsControllerTest {
   @MockBean
   private TransactionService transactionService;
 
+  @SpyBean
+  private JwtUtil jwtUtil;
+
   // Tests of Transactions
   @Test
   void list() throws Exception {
@@ -50,7 +54,10 @@ class TransactionsControllerTest {
             transaction
         ));
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/transactions"))
+    String token = jwtUtil.encode(accountNumber);
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/transactions")
+            .header("Authorization", "Bearer " + token))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().string(
             containsString("\"transactions\":[")
@@ -62,10 +69,14 @@ class TransactionsControllerTest {
   // Tests of Transfer
   @Test
   void transfer() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
     AccountNumber receiverAccountNumber = new AccountNumber("179");
     String name = "김인우";
 
+    String token = jwtUtil.encode(senderAccountNumber);
+
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
@@ -76,18 +87,22 @@ class TransactionsControllerTest {
         .andExpect(MockMvcResultMatchers.status().isCreated());
 
     verify(transferService).transfer(
-        new AccountNumber("352"), receiverAccountNumber, 3_000L, name);
+        senderAccountNumber, receiverAccountNumber, 3_000L, name);
   }
 
   @Test
   void transferWithIncorrectAccountNumber() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
     AccountNumber incorrectAccountNumber = new AccountNumber("666666");
     String name = "김인우";
 
     given(transferService.transfer(any(), any(), any(), any()))
         .willThrow(new AccountNotFound(incorrectAccountNumber));
 
+    String token = jwtUtil.encode(senderAccountNumber);
+
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
@@ -103,13 +118,17 @@ class TransactionsControllerTest {
 
   @Test
   void transferWithNegativeAmount() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
     Long negativeAmount = -10L;
     String name = "김인우";
 
     given(transferService.transfer(any(), any(), any(), any()))
         .willThrow(new IncorrectAmount(negativeAmount));
 
+    String token = jwtUtil.encode(senderAccountNumber);
+
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
@@ -125,13 +144,17 @@ class TransactionsControllerTest {
 
   @Test
   void transferWithTooLargeAmount() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
     Long tooLargeAmount = 45_600_000_000L;
     String name = "김인우";
 
     given(transferService.transfer(any(), any(), any(), any()))
         .willThrow(new InsufficientAmount(tooLargeAmount));
 
+    String token = jwtUtil.encode(senderAccountNumber);
+
     mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" +
