@@ -26,7 +26,6 @@ public class LoginService {
     Account account = accountRepository.findByAccountNumber(accountNumber)
         .orElseThrow(() -> new LoginFailed());
 
-    // TODO. Password를 비교한다.
     if (!account.authenticate(password, passwordEncoder)) {
       throw new LoginFailed();
     }
