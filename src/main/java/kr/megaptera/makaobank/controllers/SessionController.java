@@ -71,6 +71,9 @@ public class SessionController {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorDto loginFailed(LoginFailed exception) {
     String errorMessage = exception.getMessage();
+
+    System.out.println("errorMessage: " + errorMessage);
+
     Integer code = setCodeFromMessage(errorMessage);
     return new LoginFailedErrorDto(
         code,

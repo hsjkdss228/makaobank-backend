@@ -43,13 +43,14 @@ public class Account {
   public Account(String name, AccountNumber accountNumber) {
     this.name = name;
     this.accountNumber = accountNumber;
-    this.amount = 0L;
+    this.amount = 10_000_000L;
   }
 
   public Account(Long id, String name, AccountNumber accountNumber) {
     this.id = id;
     this.name = name;
     this.accountNumber = accountNumber;
+    this.amount = 0L;
   }
 
   public Account(Long id, String name, AccountNumber accountNumber, Long amount) {

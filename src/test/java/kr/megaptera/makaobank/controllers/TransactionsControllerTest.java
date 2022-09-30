@@ -3,6 +3,7 @@ package kr.megaptera.makaobank.controllers;
 import kr.megaptera.makaobank.exceptions.AccountNotFound;
 import kr.megaptera.makaobank.exceptions.IncorrectAmount;
 import kr.megaptera.makaobank.exceptions.InsufficientAmount;
+import kr.megaptera.makaobank.exceptions.TransferToMyAccount;
 import kr.megaptera.makaobank.models.AccountNumber;
 import kr.megaptera.makaobank.models.Transaction;
 import kr.megaptera.makaobank.services.TransactionService;
@@ -91,6 +92,70 @@ class TransactionsControllerTest {
   }
 
   @Test
+  void transferWithEmptyAccountNumber() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
+    String name = "김인우";
+
+    String token = jwtUtil.encode(senderAccountNumber);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{" +
+                "\"amount\":\"3000\"," +
+                "\"name\":\"" + name + "\"" +
+                "}"))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        .andExpect(MockMvcResultMatchers.content().string(
+            containsString("\"code\":3000")
+        ));
+  }
+
+  @Test
+  void transferWithEmptyAmount() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
+    AccountNumber receiverAccountNumber = new AccountNumber("179");
+    String name = "김인우";
+
+    String token = jwtUtil.encode(senderAccountNumber);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{" +
+                "\"to\":\"" + receiverAccountNumber.value() + "\"," +
+                "\"name\":\"" + name + "\"" +
+                "}"))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        .andExpect(MockMvcResultMatchers.content().string(
+            containsString("\"code\":3001")
+        ));
+  }
+
+  @Test
+  void transferWithEmptyName() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
+    AccountNumber receiverAccountNumber = new AccountNumber("179");
+
+    String token = jwtUtil.encode(senderAccountNumber);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{" +
+                "\"to\":\"" + receiverAccountNumber.value() + "\"," +
+                "\"amount\":\"3000\"" +
+                "}"))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        .andExpect(MockMvcResultMatchers.content().string(
+            containsString("\"code\":3002")
+        ));
+  }
+
+  @Test
   void transferWithIncorrectAccountNumber() throws Exception {
     AccountNumber senderAccountNumber = new AccountNumber("352");
     AccountNumber incorrectAccountNumber = new AccountNumber("666666");
@@ -112,7 +177,7 @@ class TransactionsControllerTest {
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.content().string(
-            containsString("\"code\":1001")
+            containsString("\"code\":3003")
         ));
   }
 
@@ -138,7 +203,7 @@ class TransactionsControllerTest {
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.content().string(
-            containsString("\"code\":1002")
+            containsString("\"code\":3004")
         ));
   }
 
@@ -164,7 +229,32 @@ class TransactionsControllerTest {
                 "}"))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.content().string(
-            containsString("\"code\":1003")
+            containsString("\"code\":3005")
+        ));
+  }
+
+  @Test
+  void transferToMyAccount() throws Exception {
+    AccountNumber senderAccountNumber = new AccountNumber("352");
+    String name = "김인우";
+
+    given(transferService.transfer(any(), any(), any(), any()))
+        .willThrow(new TransferToMyAccount());
+
+    String token = jwtUtil.encode(senderAccountNumber);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+            .header("Authorization", "Bearer " + token)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{" +
+                "\"to\":\"" + senderAccountNumber.value() + "\"," +
+                "\"amount\":\"3000\"," +
+                "\"name\":\"" + name + "\"" +
+                "}"))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        .andExpect(MockMvcResultMatchers.content().string(
+            containsString("\"code\":3006")
         ));
   }
 }

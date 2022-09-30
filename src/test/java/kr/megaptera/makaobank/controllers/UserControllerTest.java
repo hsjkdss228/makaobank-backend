@@ -34,9 +34,10 @@ class UserControllerTest {
   void register() throws Exception {
     AccountNumber accountNumber = new AccountNumber("35205282");
     Account account = new Account(1L, "황인우", accountNumber);
-    account.changePassword("Megaptera!1", passwordEncoder);
+    String password = "Megaptera!1";
+    account.changePassword(password, passwordEncoder);
 
-    given(userService.create("황인우", "35205282", "Megaptera!1", "Megaptera!1"))
+    given(userService.create("황인우", "35205282", password, password))
         .willReturn(account);
 
     mockMvc.perform(MockMvcRequestBuilders.post("/users")
