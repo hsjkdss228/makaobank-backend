@@ -22,7 +22,7 @@ public class TransactionService {
 
   public List<Transaction> list(AccountNumber accountNumber, int page) {
     Sort sort = Sort.by("id").descending();
-    Pageable pageable = PageRequest.of(page - 1, 100, sort);
+    Pageable pageable = PageRequest.of(page - 1, 5, sort);
     return transactionRepository
         .findAllBySenderOrReceiver(
             accountNumber, accountNumber, pageable);
